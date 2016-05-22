@@ -40,7 +40,7 @@ public class AppConstants {
     public static final String PID_COLON = "pid:";
 
     public static final String PID = "pid";
-    public static final String ANDROID_SHARE_HEADER = "Hey, Checkout this cool new Item.\n\n";
+    public static final String SHARE_HEADER = "Hey, Checkout this cool new Item.\n\n";
 
 
 //    http://103.224.241.148:2000/solr/zupigo/select?q=*&fq=pid:AZ1926800&fl=pid,large_image_url,title&rows=1&wt=json

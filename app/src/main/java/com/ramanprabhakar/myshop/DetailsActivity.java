@@ -1,8 +1,14 @@
 package com.ramanprabhakar.myshop;
 
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +24,7 @@ import com.ramanprabhakar.myshop.Model.JsonResponse;
 import com.ramanprabhakar.myshop.Services.HttpService;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import retrofit.Callback;
@@ -73,7 +80,6 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     private void setOnClickListeners() {
@@ -81,10 +87,10 @@ public class DetailsActivity extends AppCompatActivity {
         ivAndroidShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(DetailsActivity.this, "Android Share", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(DetailsActivity.this, "Android Share", Toast.LENGTH_SHORT).show();
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, AppConstants.ANDROID_SHARE_HEADER + doc.getLarge_image_url());
+                sendIntent.putExtra(Intent.EXTRA_TEXT, AppConstants.SHARE_HEADER + doc.getLarge_image_url());
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
             }
@@ -94,6 +100,15 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(DetailsActivity.this, "WhatsApp Share", Toast.LENGTH_SHORT).show();
+                Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
+                whatsappIntent.setType("text/plain");
+                whatsappIntent.setPackage("com.whatsapp");
+                whatsappIntent.putExtra(Intent.EXTRA_TEXT, AppConstants.SHARE_HEADER + doc.getLarge_image_url());
+                try {
+                    DetailsActivity.this.startActivity(whatsappIntent);
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(DetailsActivity.this, "Whatsapp have not been installed.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -101,8 +116,26 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(DetailsActivity.this, "Download", Toast.LENGTH_SHORT).show();
+                downloadFile(doc.getLarge_image_url());
             }
         });
+    }
+
+    public void downloadFile(String uRl) {
+
+        try {
+            DownloadManager mgr = (DownloadManager) DetailsActivity.this.getSystemService(Context.DOWNLOAD_SERVICE);
+            Uri downloadUri = Uri.parse(uRl);
+            DownloadManager.Request request = new DownloadManager.Request(downloadUri);
+            request.setAllowedNetworkTypes(
+                    DownloadManager.Request.NETWORK_WIFI
+                            | DownloadManager.Request.NETWORK_MOBILE)
+                    .setAllowedOverRoaming(false).setTitle("Image");
+            mgr.enqueue(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(DetailsActivity.this, "Error occurred while downloading", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
