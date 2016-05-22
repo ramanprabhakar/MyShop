@@ -3,6 +3,8 @@ package com.ramanprabhakar.myshop;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,7 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.ramanprabhakar.myshop.Model.Doc;
 import com.ramanprabhakar.myshop.Model.JsonResponse;
 import com.ramanprabhakar.myshop.Model.ResponseHeader;
 import com.squareup.okhttp.Cache;
@@ -20,8 +25,7 @@ import com.squareup.okhttp.OkHttpClient;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
-import butterknife.ButterKnife;
+import java.util.ArrayList;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -32,15 +36,49 @@ import retrofit.client.Response;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    TextView tvNext;
+    RecyclerView rvHome;
+    RVAdapter rvAdapter;
+    ArrayList<Doc> docs = new ArrayList<Doc>();;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ButterKnife.bind(this);
+
+        rvHome = (RecyclerView)findViewById(R.id.rv_home);
+        rvHome.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        rvAdapter = new RVAdapter(MainActivity.this);
+        rvHome.setAdapter(rvAdapter);
 
         getData();
+
+        tvNext = (TextView)findViewById(R.id.tv_next_page);
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HttpService.getInstance().getHomePage2(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
+                    @Override
+                    public void success(JsonResponse jsonResponse, Response response) {
+                        com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                        docs = responseBody.getDocs();
+
+                        if(!docs.isEmpty()){
+                            updateRVAdapter(docs);
+                        }
+
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
+            }
+        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -53,19 +91,23 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-//    public static final String HomePage1 = "http://103.224.241.148:2000/solr/zupigo/select?q=%2A&fl=pid,large_image_url,title&rows=30&wt=json";
-//    public static final String HomePage2 = "http://103.224.241.148:2000/solr/zupigo/select?q=%2A&rows=30&start=31&fl=pid,large_image_url,title&wt=json";
-//    public static final String Filter1 = "http://103.224.241.148:2000/solr/zupigo/select?q=%2A&fq=manufacturer:DooDa&fl=pid,large_image_url,title&rows=30&wt=json";
-//    public static final String Filter2 = "http://103.224.241.148:2000/solr/zupigo/select?q=%2A&fq=manufacturer:DooDa&fl=pid,large_image_url,title&rows=30&start=31&wt=json";
-//    public static final String Detail = "http://103.224.241.148:2000/solr/zupigo/select?q=%2A&fq=pid:AZ1926800&fl=pid,large_image_url,title&rows=1&wt=json";
+    private void updateRVAdapter(ArrayList<Doc> docs) {
+        rvAdapter.getList().clear();
+        rvAdapter.setList(docs);
+        rvAdapter.notifyDataSetChanged();
+        Toast.makeText(MainActivity.this, "Adapter Set", Toast.LENGTH_SHORT).show();
+    }
 
-    private void getData() {
-
-        HttpService.getInstance().getHomePage1(AppConstants.ASTERISK, AppConstants.FL_LIST , "30", AppConstants.JSON ,new Callback<JsonResponse>() {
+    public void getData() {
+        HttpService.getInstance().getHomePage1(AppConstants.ASTERISK, AppConstants.FL_LIST , AppConstants.ROWS_30, AppConstants.JSON ,new Callback<JsonResponse>() {
             @Override
             public void success(JsonResponse jsonResponse, Response response) {
                 ResponseHeader responseHeader = jsonResponse.getResponseHeader();
                 com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                docs = responseBody.getDocs();
+                if(!docs.isEmpty()){
+                    updateRVAdapter(docs);
+                }
             }
 
             @Override

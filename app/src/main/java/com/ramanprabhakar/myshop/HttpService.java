@@ -68,7 +68,8 @@ public class HttpService {
         restService.getFilter2(q, fq, flList, rows, start, wt, callback);
     }
 
-    public void getDetails(String q, String fq, List<String> flList, String rows, String wt, Callback<JsonResponse> callback) {
+    public void getDetails(String q, String token, List<String> flList, String rows, String wt, Callback<JsonResponse> callback) {
+        String fq = AppConstants.PID_COLON + token;
         restService.getDetails(q, fq, flList, rows, wt, callback);
     }
 }
