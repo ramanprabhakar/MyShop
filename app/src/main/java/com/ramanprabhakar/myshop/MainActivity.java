@@ -27,12 +27,13 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     TextView tvNext;
     RecyclerView rvHome;
     RVAdapter rvAdapter;
+    LinearLayoutManager llm;
     ArrayList<Doc> docs = new ArrayList<Doc>();
 
     @Override
@@ -43,7 +44,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         rvHome = (RecyclerView) findViewById(R.id.rv_home);
-        rvHome.setLayoutManager(new GridLayoutManager(this,2));
+        llm = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false);
+        rvHome.setLayoutManager(llm);
         rvAdapter = new RVAdapter(MainActivity.this);
         rvHome.setAdapter(rvAdapter);
         tvNext = (TextView) findViewById(R.id.tv_next_page);
@@ -60,63 +62,12 @@ public class MainActivity extends AppCompatActivity
         getHomePage1();
     }
 
-    private void getHomePage2() {
-        tvNext.setText("Previous");
-        tvNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getHomePage1();
-            }
-        });
-
-        HttpService.getInstance().getHomePage2(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
-            @Override
-            public void success(JsonResponse jsonResponse, Response response) {
-                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
-                docs = responseBody.getDocs();
-                if (!docs.isEmpty()) {
-                    updateRVAdapter(docs);
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void updateRVAdapter(ArrayList<Doc> docs) {
         rvAdapter.getList().clear();
         rvAdapter.getList().addAll(docs);
         rvAdapter.notifyDataSetChanged();
+        llm.scrollToPositionWithOffset(0,0);
 
-    }
-
-    public void getHomePage1() {
-        tvNext.setText("Next");
-        tvNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getHomePage2();
-            }
-        });
-        HttpService.getInstance().getHomePage1(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.JSON, new Callback<JsonResponse>() {
-            @Override
-            public void success(JsonResponse jsonResponse, Response response) {
-                ResponseHeader responseHeader = jsonResponse.getResponseHeader();
-                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
-                docs = responseBody.getDocs();
-                if (!docs.isEmpty()) {
-                    updateRVAdapter(docs);
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -169,15 +120,15 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void getFilter1() {
+    public void getHomePage1() {
         tvNext.setText("Next");
         tvNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFilter2();
+                getHomePage2();
             }
         });
-        HttpService.getInstance().getFilter1(AppConstants.ASTERISK,AppConstants.ManufacturerDooda, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.JSON, new Callback<JsonResponse>() {
+        HttpService.getInstance().getHomePage1(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.JSON, new Callback<JsonResponse>() {
             @Override
             public void success(JsonResponse jsonResponse, Response response) {
                 ResponseHeader responseHeader = jsonResponse.getResponseHeader();
@@ -190,7 +141,63 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void failure(RetrofitError error) {
-                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                handleRetrofitError(error);
+//                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void getHomePage2() {
+        tvNext.setText("Previous");
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getHomePage1();
+            }
+        });
+
+        HttpService.getInstance().getHomePage2(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
+            @Override
+            public void success(JsonResponse jsonResponse, Response response) {
+                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                docs = responseBody.getDocs();
+                if (!docs.isEmpty()) {
+                    updateRVAdapter(docs);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                handleRetrofitError(error);
+//                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getFilter1() {
+        tvNext.setText("Next");
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFilter2();
+            }
+        });
+        HttpService.getInstance().getFilter1(AppConstants.ASTERISK, AppConstants.ManufacturerDooda, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.JSON, new Callback<JsonResponse>() {
+            @Override
+            public void success(JsonResponse jsonResponse, Response response) {
+                ResponseHeader responseHeader = jsonResponse.getResponseHeader();
+                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                docs = responseBody.getDocs();
+                if (!docs.isEmpty()) {
+                    updateRVAdapter(docs);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                handleRetrofitError(error);
+//                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -203,7 +210,7 @@ public class MainActivity extends AppCompatActivity
                 getFilter1();
             }
         });
-        HttpService.getInstance().getFilter2(AppConstants.ASTERISK,AppConstants.ManufacturerDooda, AppConstants.FL_LIST, AppConstants.ROWS_30,AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
+        HttpService.getInstance().getFilter2(AppConstants.ASTERISK, AppConstants.ManufacturerDooda, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
             @Override
             public void success(JsonResponse jsonResponse, Response response) {
                 ResponseHeader responseHeader = jsonResponse.getResponseHeader();
@@ -216,7 +223,8 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void failure(RetrofitError error) {
-                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                handleRetrofitError(error);
+//                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }

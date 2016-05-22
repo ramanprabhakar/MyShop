@@ -48,7 +48,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
         title = list.get(position).getTitle();
         image_url = list.get(position).getLarge_image_url();
 
-//        viewHolder.tvItem.setText(title);
+        viewHolder.tvItem.setText(title);
+        viewHolder.tvPrice.setText(AppConstants.INR_SYMBOL + "1000");
 
         if (image_url != null){
             Picasso.with(mContext)
@@ -79,13 +80,15 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivItem;
-//        TextView tvItem;
+        TextView tvItem;
+        TextView tvPrice;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
             ivItem = (ImageView)itemView.findViewById(R.id.iv_item);
-//            tvItem = (TextView)itemView.findViewById(R.id.tv_item);
+            tvItem = (TextView)itemView.findViewById(R.id.tv_item);
+            tvPrice = (TextView)itemView.findViewById(R.id.tv_price);
 
         }
     }

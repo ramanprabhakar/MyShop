@@ -31,11 +31,12 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends BaseActivity {
 
     Doc doc;
     ImageView ivDetails;
     TextView tvDetails;
+    TextView tvPriceDetails;
     ImageView ivAndroidShare;
     ImageView ivWhatsappShare;
     ImageView ivDownload;
@@ -49,17 +50,14 @@ public class DetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        final int width = size.x;
-        final int height = size.y;
-
         ivDetails = (ImageView) findViewById(R.id.iv_details);
         tvDetails = (TextView) findViewById(R.id.tv_details);
         ivAndroidShare = (ImageView) findViewById(R.id.iv_android_share);
         ivWhatsappShare = (ImageView) findViewById(R.id.iv_whatsapp_share);
         ivDownload = (ImageView) findViewById(R.id.iv_download);
+        tvPriceDetails = (TextView)findViewById(R.id.tv_price_details);
+
+        tvPriceDetails.setText(AppConstants.INR_SYMBOL + "1000");
 
         setOnClickListeners();
 
@@ -70,13 +68,14 @@ public class DetailsActivity extends AppCompatActivity {
             public void success(JsonResponse jsonResponse, Response response) {
                 com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
                 doc = responseBody.getDocs().get(0);
-                Picasso.with(DetailsActivity.this).load(doc.getLarge_image_url()).resize(width, width).into(ivDetails);
+                Picasso.with(DetailsActivity.this).load(doc.getLarge_image_url()).into(ivDetails);
                 tvDetails.setText(doc.getTitle());
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Toast.makeText(DetailsActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                handleRetrofitError(error);
+//                Toast.makeText(DetailsActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -121,11 +120,11 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
-    public void downloadFile(String uRl) {
+    public void downloadFile(String url) {
 
         try {
             DownloadManager mgr = (DownloadManager) DetailsActivity.this.getSystemService(Context.DOWNLOAD_SERVICE);
-            Uri downloadUri = Uri.parse(uRl);
+            Uri downloadUri = Uri.parse(url);
             DownloadManager.Request request = new DownloadManager.Request(downloadUri);
             request.setAllowedNetworkTypes(
                     DownloadManager.Request.NETWORK_WIFI
