@@ -1,16 +1,15 @@
 package com.ramanprabhakar.myshop;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ramanprabhakar.myshop.Model.Doc;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -43,20 +42,33 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RVAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(RVAdapter.MyViewHolder holder, final int position) {
 
         MyViewHolder viewHolder = (MyViewHolder) holder;
         title = list.get(position).getTitle();
         image_url = list.get(position).getLarge_image_url();
 
-        viewHolder.tvItem.setText(title);
+//        viewHolder.tvItem.setText(title);
 
         if (image_url != null){
-                Glide.with(mContext)
-                        .load(image_url)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.ivItem);
+            Picasso.with(mContext)
+                    .load(image_url)
+                    .into(holder.ivItem);
         }
+
+        holder.ivItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String pid = list.get(position).getPid();
+                Intent detailsIntent = new Intent(mContext, DetailsActivity.class);
+                detailsIntent.putExtra(AppConstants.PID , pid);
+                mContext.startActivity(detailsIntent);
+
+            }
+        });
+
+
     }
 
     @Override
@@ -67,13 +79,13 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivItem;
-        TextView tvItem;
+//        TextView tvItem;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
             ivItem = (ImageView)itemView.findViewById(R.id.iv_item);
-            tvItem = (TextView)itemView.findViewById(R.id.tv_item);
+//            tvItem = (TextView)itemView.findViewById(R.id.tv_item);
 
         }
     }

@@ -1,21 +1,19 @@
-package com.ramanprabhakar.myshop;
+package com.ramanprabhakar.myshop.Services;
 
 import android.content.Context;
 import android.util.LruCache;
 
+import com.ramanprabhakar.myshop.AppConstants;
 import com.ramanprabhakar.myshop.Model.JsonResponse;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.android.AndroidLog;
 import retrofit.client.OkClient;
-import retrofit.http.GET;
-import retrofit.http.Query;
 
 /**
  * Created by Raman on 5/20/2016.

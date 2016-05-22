@@ -25,7 +25,9 @@ public class AppConstants {
     public static final String Detail = "select?q=%2A&fq=pid:AZ1926800&fl=pid,large_image_url,title&rows=1&wt=json";
 
     public static final String JSON = "json";
-    public static final String ManufacturerDooda = "manufacturer" + "%3A" + "DooDa";
+    //    public static final String ManufacturerDooda = "manufacturer" + "%3A" + "DooDa";
+    public static final String ManufacturerDooda = "manufacturer:DooDa";
+
     public static final String HOST = "http://103.224.241.148:2000/solr/zupigo";
 //    public static final String ASTERISK = "%2A";
 
@@ -33,8 +35,12 @@ public class AppConstants {
 
     public static final List<String> FL_LIST = Arrays.asList("pid", "large_image_url", "title");
     public static final String ROWS_30 = "30";
+    public static final String ROWS_1 = "1";
     public static final String START_31 = "31";
     public static final String PID_COLON = "pid:";
+
+    public static final String PID = "pid";
+    public static final String ANDROID_SHARE_HEADER = "Hey, Checkout this cool new Item.\n\n";
 
 
 //    http://103.224.241.148:2000/solr/zupigo/select?q=*&fq=pid:AZ1926800&fl=pid,large_image_url,title&rows=1&wt=json

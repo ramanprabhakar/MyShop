@@ -1,7 +1,8 @@
 package com.ramanprabhakar.myshop;
 
 import android.app.Application;
-import android.support.v7.widget.AppCompatTextView;
+
+import com.ramanprabhakar.myshop.Services.HttpService;
 
 /**
  * Created by Raman on 5/21/2016.

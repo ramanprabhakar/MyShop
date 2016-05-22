@@ -1,8 +1,7 @@
 package com.ramanprabhakar.myshop;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,17 +19,12 @@ import android.widget.Toast;
 import com.ramanprabhakar.myshop.Model.Doc;
 import com.ramanprabhakar.myshop.Model.JsonResponse;
 import com.ramanprabhakar.myshop.Model.ResponseHeader;
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.OkHttpClient;
+import com.ramanprabhakar.myshop.Services.HttpService;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
+
 import retrofit.Callback;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.AndroidLog;
-import retrofit.client.OkClient;
 import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity
@@ -39,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     TextView tvNext;
     RecyclerView rvHome;
     RVAdapter rvAdapter;
-    ArrayList<Doc> docs = new ArrayList<Doc>();;
+    ArrayList<Doc> docs = new ArrayList<Doc>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,37 +42,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        rvHome = (RecyclerView)findViewById(R.id.rv_home);
-        rvHome.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-
+        rvHome = (RecyclerView) findViewById(R.id.rv_home);
+        rvHome.setLayoutManager(new GridLayoutManager(this,2));
         rvAdapter = new RVAdapter(MainActivity.this);
         rvHome.setAdapter(rvAdapter);
-
-        getData();
-
-        tvNext = (TextView)findViewById(R.id.tv_next_page);
-        tvNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                HttpService.getInstance().getHomePage2(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
-                    @Override
-                    public void success(JsonResponse jsonResponse, Response response) {
-                        com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
-                        docs = responseBody.getDocs();
-
-                        if(!docs.isEmpty()){
-                            updateRVAdapter(docs);
-                        }
-
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-
-                    }
-                });
-            }
-        });
+        tvNext = (TextView) findViewById(R.id.tv_next_page);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -89,30 +57,64 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        getHomePage1();
     }
 
-    private void updateRVAdapter(ArrayList<Doc> docs) {
-        rvAdapter.getList().clear();
-        rvAdapter.setList(docs);
-        rvAdapter.notifyDataSetChanged();
-        Toast.makeText(MainActivity.this, "Adapter Set", Toast.LENGTH_SHORT).show();
-    }
+    private void getHomePage2() {
+        tvNext.setText("Previous");
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getHomePage1();
+            }
+        });
 
-    public void getData() {
-        HttpService.getInstance().getHomePage1(AppConstants.ASTERISK, AppConstants.FL_LIST , AppConstants.ROWS_30, AppConstants.JSON ,new Callback<JsonResponse>() {
+        HttpService.getInstance().getHomePage2(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
             @Override
             public void success(JsonResponse jsonResponse, Response response) {
-                ResponseHeader responseHeader = jsonResponse.getResponseHeader();
                 com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
                 docs = responseBody.getDocs();
-                if(!docs.isEmpty()){
+                if (!docs.isEmpty()) {
                     updateRVAdapter(docs);
                 }
             }
 
             @Override
             public void failure(RetrofitError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
+    private void updateRVAdapter(ArrayList<Doc> docs) {
+        rvAdapter.getList().clear();
+        rvAdapter.getList().addAll(docs);
+        rvAdapter.notifyDataSetChanged();
+
+    }
+
+    public void getHomePage1() {
+        tvNext.setText("Next");
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getHomePage2();
+            }
+        });
+        HttpService.getInstance().getHomePage1(AppConstants.ASTERISK, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.JSON, new Callback<JsonResponse>() {
+            @Override
+            public void success(JsonResponse jsonResponse, Response response) {
+                ResponseHeader responseHeader = jsonResponse.getResponseHeader();
+                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                docs = responseBody.getDocs();
+                if (!docs.isEmpty()) {
+                    updateRVAdapter(docs);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -155,22 +157,67 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.home) {
+            getHomePage1();
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.filter) {
+            getFilter1();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void getFilter1() {
+        tvNext.setText("Next");
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFilter2();
+            }
+        });
+        HttpService.getInstance().getFilter1(AppConstants.ASTERISK,AppConstants.ManufacturerDooda, AppConstants.FL_LIST, AppConstants.ROWS_30, AppConstants.JSON, new Callback<JsonResponse>() {
+            @Override
+            public void success(JsonResponse jsonResponse, Response response) {
+                ResponseHeader responseHeader = jsonResponse.getResponseHeader();
+                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                docs = responseBody.getDocs();
+                if (!docs.isEmpty()) {
+                    updateRVAdapter(docs);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getFilter2() {
+        tvNext.setText("Previous");
+        tvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFilter1();
+            }
+        });
+        HttpService.getInstance().getFilter2(AppConstants.ASTERISK,AppConstants.ManufacturerDooda, AppConstants.FL_LIST, AppConstants.ROWS_30,AppConstants.START_31, AppConstants.JSON, new Callback<JsonResponse>() {
+            @Override
+            public void success(JsonResponse jsonResponse, Response response) {
+                ResponseHeader responseHeader = jsonResponse.getResponseHeader();
+                com.ramanprabhakar.myshop.Model.Response responseBody = jsonResponse.getResponse();
+                docs = responseBody.getDocs();
+                if (!docs.isEmpty()) {
+                    updateRVAdapter(docs);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

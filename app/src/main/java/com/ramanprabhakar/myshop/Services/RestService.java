@@ -1,4 +1,4 @@
-package com.ramanprabhakar.myshop;
+package com.ramanprabhakar.myshop.Services;
 
 import com.ramanprabhakar.myshop.Model.JsonResponse;
 

@@ -3,6 +3,7 @@ package com.ramanprabhakar.myshop.Model;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by Raman on 5/20/2016.
@@ -13,7 +14,7 @@ public class Params implements Serializable {
     String q;
 
     @SerializedName("fl")
-    String fl;
+    List<String> fl;
 
     @SerializedName("start")
     String start;
@@ -35,11 +36,11 @@ public class Params implements Serializable {
         this.q = q;
     }
 
-    public String getFl() {
+    public List<String> getFl() {
         return fl;
     }
 
-    public void setFl(String fl) {
+    public void setFl(List<String> fl) {
         this.fl = fl;
     }
 
