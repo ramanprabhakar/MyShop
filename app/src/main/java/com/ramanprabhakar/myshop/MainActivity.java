@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity
         rvAdapter.getList().clear();
         rvAdapter.getList().addAll(docs);
         rvAdapter.notifyDataSetChanged();
-        llm.scrollToPositionWithOffset(0,0);
+        llm.scrollToPositionWithOffset(0, 0);
 
     }
 
